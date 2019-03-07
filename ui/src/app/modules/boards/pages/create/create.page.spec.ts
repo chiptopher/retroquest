@@ -25,7 +25,6 @@ describe('CreateComponent', () => {
   let component: CreateComponent;
   let mockTeamService;
   let mockRouter;
-  let mockRecaptchaComponent;
 
   beforeEach(() => {
     mockTeamService = jasmine.createSpyObj('teamService', {
@@ -33,13 +32,11 @@ describe('CreateComponent', () => {
       isCaptchaEnabled: new Subject()
     });
     mockRouter = jasmine.createSpyObj({'navigateByUrl': null});
-    mockRecaptchaComponent = jasmine.createSpyObj({reset: null, execute: null});
 
     spyOn(AuthService, 'setToken');
     spyOn(console, 'error');
 
     component = new CreateComponent(mockTeamService, mockRouter);
-    component.recaptchaComponent = mockRecaptchaComponent;
   });
 
   describe('requestCaptchaStateAndCreateTeam', () => {
@@ -124,38 +121,6 @@ describe('CreateComponent', () => {
 
       expect(component.errorMessage).toEqual(httpErrorMessage);
       expect(console.error).toHaveBeenCalledWith('A registration error occurred: ', httpErrorMessage);
-    });
-
-    it('should set the error message and log it when isCaptchaEnabled has an error', () => {
-      component.teamName = 'Team Name';
-      component.password = 'p4ssw0rd';
-      component.confirmPassword = 'p4ssw0rd';
-
-      const httpErrorMessage = 'server error message';
-      const error = {
-        error: JSON.stringify({message: httpErrorMessage})
-      };
-
-      mockTeamService.isCaptchaEnabled.and.returnValue(throwError(error));
-
-      component.requestCaptchaStateAndCreateTeam();
-
-      expect(component.errorMessage).toEqual(httpErrorMessage);
-      expect(console.error).toHaveBeenCalledWith('A registration error occurred: ', httpErrorMessage);
-    });
-
-    it('should not call create when isCaptchaEnabled has an error', () => {
-      component.teamName = 'Team Name';
-      component.password = 'p4ssw0rd';
-      component.confirmPassword = 'p4ssw0rd';
-
-      const error = {error: JSON.stringify({message: 'error'})};
-
-      mockTeamService.isCaptchaEnabled.and.returnValue(throwError(error));
-
-      component.requestCaptchaStateAndCreateTeam();
-
-      expect(mockTeamService.create).not.toHaveBeenCalled();
     });
   });
 

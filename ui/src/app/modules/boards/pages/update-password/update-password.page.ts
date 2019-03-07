@@ -15,12 +15,10 @@
  * limitations under the License.
  */
 
-import {Component, ViewChild, OnInit} from '@angular/core';
-import {Router, ActivatedRoute} from '@angular/router';
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute, Router} from '@angular/router';
 
-import {AuthService} from '../../../auth/auth.service';
 import {TeamService} from '../../../teams/services/team.service';
-import {RecaptchaComponent} from 'ng-recaptcha';
 import {of} from 'rxjs/internal/observable/of';
 
 @Component({
@@ -32,8 +30,6 @@ export class UpdatePasswordComponent implements OnInit {
 
   constructor(private teamService: TeamService, private route: ActivatedRoute, private router: Router) {
   }
-
-  @ViewChild(RecaptchaComponent) recaptchaComponent: RecaptchaComponent;
 
   teamId: string;
   previousPassword: string;

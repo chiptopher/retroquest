@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-import {Component, ViewChild, OnInit} from '@angular/core';
+import {Component, OnInit} from '@angular/core';
 import {ActivatedRoute, Router} from '@angular/router';
 
 import {AuthService} from '../../../auth/auth.service';
 import {TeamService} from '../../../teams/services/team.service';
-import {RecaptchaComponent} from 'ng-recaptcha';
-import {concatMap, map} from 'rxjs/operators';
-import {EMPTY} from 'rxjs';
 import {Observable} from 'rxjs/internal/Observable';
 import {HttpResponse} from '@angular/common/http';
 import {of} from 'rxjs/internal/observable/of';
@@ -37,8 +34,6 @@ export class LoginComponent implements OnInit {
   constructor(private teamService: TeamService, private route: ActivatedRoute, private router: Router) {
   }
 
-  @ViewChild(RecaptchaComponent) recaptchaComponent: RecaptchaComponent;
-
   teamName: string;
   password: string;
   errorMessage: string;
@@ -52,10 +47,7 @@ export class LoginComponent implements OnInit {
       return;
     }
 
-    this.teamService.isCaptchaEnabledForTeam(this.teamName).pipe(
-      map(response => JSON.parse(response.body).captchaEnabled),
-      concatMap(captchaEnabled => this.loginOrExecuteReCaptcha(captchaEnabled))
-    ).subscribe(
+    this.loginOrExecuteReCaptcha().subscribe(
       response => this.handleResponse(response),
       error => this.handleError(error)
     );
@@ -69,12 +61,7 @@ export class LoginComponent implements OnInit {
       );
   }
 
-  private loginOrExecuteReCaptcha(captchaEnabled): Observable<HttpResponse<Object>> {
-    if (captchaEnabled) {
-      this.recaptchaComponent.reset();
-      this.recaptchaComponent.execute();
-      return EMPTY;
-    }
+  private loginOrExecuteReCaptcha(): Observable<HttpResponse<Object>> {
     return this.teamService.login(this.teamName, this.password, null);
   }
 

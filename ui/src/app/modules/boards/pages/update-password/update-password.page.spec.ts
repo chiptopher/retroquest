@@ -26,7 +26,6 @@ describe('UpdatePasswordComponent', () => {
   let mockTeamService;
   let mockActivatedRoute;
   let mockRouter;
-  let mockRecaptchaComponent;
 
   beforeEach(() => {
     mockTeamService = jasmine.createSpyObj('teamService', {
@@ -34,13 +33,11 @@ describe('UpdatePasswordComponent', () => {
     });
     mockActivatedRoute = {snapshot: {params: {teamId: -1}}};
     mockRouter = jasmine.createSpyObj({'navigateByUrl': null});
-    mockRecaptchaComponent = jasmine.createSpyObj({reset: null, execute: null});
 
     spyOn(AuthService, 'setToken');
     spyOn(console, 'error');
 
     component = new UpdatePasswordComponent(mockTeamService, mockActivatedRoute, mockRouter);
-    component.recaptchaComponent = mockRecaptchaComponent;
   });
 
   describe('updatePassword', () => {

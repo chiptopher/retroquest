@@ -15,14 +15,11 @@
  * limitations under the License.
  */
 
-import {Component, ViewChild} from '@angular/core';
+import {Component} from '@angular/core';
 import {Router} from '@angular/router';
 
 import {AuthService} from '../../../auth/auth.service';
 import {TeamService} from '../../../teams/services/team.service';
-import {RecaptchaComponent} from 'ng-recaptcha';
-import {concatMap, map} from 'rxjs/operators';
-import {EMPTY} from 'rxjs';
 import {Observable} from 'rxjs/internal/Observable';
 import {HttpResponse} from '@angular/common/http';
 import {of} from 'rxjs/internal/observable/of';
@@ -37,8 +34,6 @@ export class CreateComponent {
   constructor(private teamService: TeamService, private router: Router) {
   }
 
-  @ViewChild(RecaptchaComponent) recaptchaComponent: RecaptchaComponent;
-
   teamName: string;
   password: string;
   confirmPassword: string;
@@ -49,21 +44,13 @@ export class CreateComponent {
       return;
     }
 
-    this.teamService.isCaptchaEnabled().pipe(
-      map(response => JSON.parse(response.body).captchaEnabled),
-      concatMap(captchaEnabled => this.createTeamOrExecuteCaptcha(captchaEnabled)),
-    ).subscribe(
+    this.createTeamOrExecuteCaptcha().subscribe(
       response => this.handleResponse(response),
       error => this.handleError(error)
     );
   }
 
-  private createTeamOrExecuteCaptcha(captchaEnabled): Observable<HttpResponse<Object>> {
-    if (captchaEnabled) {
-      this.recaptchaComponent.reset();
-      this.recaptchaComponent.execute();
-      return EMPTY;
-    }
+  private createTeamOrExecuteCaptcha(): Observable<HttpResponse<Object>> {
     return this.teamService.create(this.teamName, this.password, null);
   }
 

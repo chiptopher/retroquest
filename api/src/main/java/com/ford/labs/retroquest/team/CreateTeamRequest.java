@@ -34,5 +34,5 @@ public class CreateTeamRequest implements TeamRequest {
     @PasswordConstraint
     private String password;
 
-    private String captchaResponse;
+    private String captchaValue;
 }

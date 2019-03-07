@@ -54,6 +54,10 @@
             >8 or more characters with a mix of numbers and letters</span>
 
           </div>
+
+          <!--Do not touch this it's meant for non humans-->
+          <input [(ngModel)]="totallyHumanField" type="text" name="totally_human_password" style="display:none !important" tabindex="-1" autocomplete="off">
+
           <div class="rq-input-group">
             <label for="teamPasswordConfirmInput">Confirm Password</label>
             <input id="teamPasswordConfirmInput"

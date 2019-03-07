@@ -25,6 +25,7 @@ import org.mockito.Mock;
 import org.mockito.runners.MockitoJUnitRunner;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.context.request.RequestContextHolder;
 
 import java.io.IOException;
 import java.time.LocalDate;
@@ -81,7 +82,7 @@ public class TeamControllerTest {
     @Test
     public void returnsJwtOnTeamCreation() {
         String expectedJwt = "I am a JWT";
-        CreateTeamRequest createTeamRequest = new CreateTeamRequest("A Team", "password", "captcha");
+        CreateTeamRequest createTeamRequest = new CreateTeamRequest("A Team", "password", "");
         Team savedTeam = new Team();
         savedTeam.setUri("a-team");
         savedTeam.setPassword("password");
@@ -108,4 +109,5 @@ public class TeamControllerTest {
 
         verify(teamService).updatePassword(updatePasswordRequest);
     }
+
 }

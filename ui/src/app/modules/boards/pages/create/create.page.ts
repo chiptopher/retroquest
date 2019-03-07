@@ -38,6 +38,7 @@ export class CreateComponent {
   password: string;
   confirmPassword: string;
   errorMessage: string;
+  totallyHumanField = '';
 
   requestCaptchaStateAndCreateTeam() {
     if (!this.validateInput()) {
@@ -51,7 +52,7 @@ export class CreateComponent {
   }
 
   private createTeamOrExecuteCaptcha(): Observable<HttpResponse<Object>> {
-    return this.teamService.create(this.teamName, this.password, null);
+    return this.teamService.create(this.teamName, this.password, this.totallyHumanField);
   }
 
   create(captchaResponse: string = null): void {
@@ -89,6 +90,7 @@ export class CreateComponent {
   }
 
   private handleError(error) {
+    console.log('Error', error);
     error.error = JSON.parse(error.error);
     this.errorMessage = error.error.message ? error.error.message : `${error.status} ${error.error}`;
     console.error('A registration error occurred: ', this.errorMessage);

@@ -18,6 +18,8 @@
 package com.ford.labs.retroquest.team;
 
 import com.ford.labs.retroquest.security.JwtBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -25,7 +27,10 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
 import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.context.request.RequestContextHolder;
+import org.springframework.web.context.request.ServletRequestAttributes;
 
+import javax.servlet.http.HttpServletRequest;
 import javax.transaction.Transactional;
 import javax.validation.Valid;
 import java.io.IOException;
@@ -37,19 +42,28 @@ import static org.springframework.http.HttpStatus.*;
 @RequestMapping(value = "/api")
 public class TeamController {
 
+    Logger logger = LoggerFactory.getLogger(TeamController.class);
+
     private final TeamService teamService;
     private final JwtBuilder jwtBuilder;
-    private final CaptchaService captchaService;
 
-    public TeamController(TeamService teamService, JwtBuilder jwtBuilder, CaptchaService captchaService) {
+    public TeamController(TeamService teamService, JwtBuilder jwtBuilder) {
         this.teamService = teamService;
         this.jwtBuilder = jwtBuilder;
-        this.captchaService = captchaService;
     }
 
     @PostMapping("/team")
     @Transactional(rollbackOn = URISyntaxException.class)
     public ResponseEntity<String> createTeam(@RequestBody @Valid CreateTeamRequest createTeamRequest) {
+
+        if (!createTeamRequest.getCaptchaValue().isEmpty()) {
+            HttpServletRequest request = ((ServletRequestAttributes) RequestContextHolder.currentRequestAttributes())
+                    .getRequest();
+
+            logger.warn("A probably bot was detecting trying to create a board with: {} ip: {}", createTeamRequest, request.getRemoteAddr());
+            throw new RuntimeException("Access Denied");
+        }
+
         Team team = teamService.createNewTeam(createTeamRequest);
 
         MultiValueMap<String, String> headers = new HttpHeaders();
@@ -102,13 +116,4 @@ public class TeamController {
         return new ResponseEntity<>(jwt, headers, OK);
     }
 
-    @GetMapping("/team/{teamName}/captcha")
-    public CaptchaResponse isCaptchaEnabledForTeam(@PathVariable("teamName") String teamName) {
-        return new CaptchaResponse(captchaService.isCaptchaEnabledForTeam(teamName));
-    }
-
-    @GetMapping("/captcha")
-    public CaptchaResponse isCaptchaEnabled() {
-        return new CaptchaResponse(captchaService.isCaptchaEnabled());
-    }
 }

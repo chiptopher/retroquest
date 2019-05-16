@@ -14,8 +14,7 @@ import org.springframework.test.web.servlet.MvcResult;
 import org.springframework.web.client.RestTemplate;
 
 import static org.hamcrest.Matchers.containsString;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.*;
 import static org.springframework.http.MediaType.APPLICATION_JSON;
 import static org.springframework.test.web.client.ExpectedCount.once;
 import static org.springframework.test.web.client.ExpectedCount.times;
@@ -61,6 +60,30 @@ public class TeamApiTest extends ControllerTest {
         assertEquals("beach-bums", teamEntity.getUri());
         assertEquals(60, teamEntity.getPassword().length());
         assertNotNull(mvcResult.getResponse().getContentAsString());
+    }
+
+    @Test
+    public void canRenameTeam() throws Exception {
+        MockRestServiceServer server = MockRestServiceServer.bindTo(restTemplate).build();
+        server.expect(requestTo(containsString("http://captcha.url")))
+                .andRespond(withSuccess("{\"success\":true}", APPLICATION_JSON));
+
+        String teamJsonBody = "{ \"name\" : \"Beach Bums\", \"password\" : \"" + VALID_PASSWORD + "\", \"captchaResponse\":\"some captcha\"}";
+
+        MvcResult mvcResult = mockMvc.perform(post("/api/team")
+                .contentType(APPLICATION_JSON)
+                .content(teamJsonBody)).andReturn();
+
+        String newNameBody = "{ \"newName\": \"Beach Bums 2\"}";
+        mockMvc.perform(post("/api/team/beach-bums/name")
+                .contentType(APPLICATION_JSON)
+                .content(newNameBody)
+                .header("Authorization", "Bearer " + jwtBuilder.buildJwt("beach-bums")))
+                .andExpect(status().isOk());
+
+        Team teamEntity = teamRepository.findTeamByName("Beach Bums 2").orElse(null);
+
+        assertNotNull(teamEntity);
     }
 
     @Test

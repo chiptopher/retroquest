@@ -138,6 +138,12 @@ public class TeamService {
         throw new BoardDoesNotExistException();
     }
 
+    public void renameTeam(String teamUri, String newName) {
+        Team team = this.getTeamByUri(teamUri);
+        team.setName(newName);
+        teamRepository.save(team);
+    }
+
     public Team getTeamByUri(String teamUri) {
         Optional<Team> team = teamRepository.findTeamByUri(teamUri.toLowerCase());
         if (team.isPresent()) {

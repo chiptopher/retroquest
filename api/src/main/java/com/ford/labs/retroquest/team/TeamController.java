@@ -73,6 +73,12 @@ public class TeamController {
         return teamService.getTeamByUri(teamUri).getName();
     }
 
+    @PostMapping("/team/{teamId}/name")
+    @PreAuthorize("#teamId == authentication.principal")
+    public void updateTeamName(@PathVariable("teamId") String teamId, @RequestBody RenameRequest renameRequest) {
+        teamService.renameTeam(teamId, renameRequest.getNewName());
+    }
+
     @GetMapping(value = "/team/{teamId}/csv", produces = "application/board.csv")
     @PreAuthorize("#teamId == authentication.principal")
     public ResponseEntity<byte[]> downloadTeamBoard(@PathVariable("teamId") String teamId) throws IOException {
